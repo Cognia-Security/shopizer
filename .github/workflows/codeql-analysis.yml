@@ -1,0 +1,49 @@
+name: "CodeQL"
+
+on:
+  push:
+    branches: [ "3.2.7" ]
+  pull_request:
+    branches: [ "3.2.7" ]
+  schedule:
+    - cron: '0 1 * * 0'  # weekly scan
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'java' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+
+    - name: Build project
+      run: |
+        ./mvnw clean install -DskipTests=true
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        output: codeql-report.sarif
+
+    - name: Upload SARIF Report as Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: codeql-report
+        path: codeql-report.sarif
+

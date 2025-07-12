@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vulnerability Report Generator</title>
+</head>
+<body>
+  <h2>🔍 Scan Project for Vulnerabilities</h2>
+  <input type="text" id="repoUrl" placeholder="Enter GitHub Repo (e.g. user/repo)" size="60">
+  <br><br>
+  <input type="password" id="githubToken" placeholder="GitHub PAT" size="30">
+  <input type="password" id="sonarToken" placeholder="SonarCloud Token" size="30">
+  <br><br>
+  <button onclick="triggerCodeQL()">Run CodeQL Scan</button>
+  <button onclick="triggerSonar()">Run SonarQube Scan</button>
+  <button onclick="triggerDependabot()">Run Dependabot Scan</button>
+
+  <p id="status"></p>
+  <script src="/static/script.js"></script>
+</body>
+</html>
