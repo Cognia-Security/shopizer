@@ -39,7 +39,21 @@ public class UserServicesImpl implements WebUserServices{
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServicesImpl.class);
 	
-	private static final String DEFAULT_INITIAL_PASSWORD = "password";
+	// SECURITY FIX: Hardcoded default password removed - should be generated or configured externally
+	// private static final String DEFAULT_INITIAL_PASSWORD = "password";
+	private static final String DEFAULT_INITIAL_PASSWORD = System.getenv("DEFAULT_ADMIN_PASSWORD") != null ? 
+		System.getenv("DEFAULT_ADMIN_PASSWORD") : generateSecurePassword();
+	
+	private static String generateSecurePassword() {
+		// Generate a secure random password
+		String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+		StringBuilder sb = new StringBuilder();
+		java.util.Random random = new java.util.Random();
+		for (int i = 0; i < 12; i++) {
+			sb.append(chars.charAt(random.nextInt(chars.length())));
+		}
+		return sb.toString();
+	}
 
 	@Inject
 	private UserService userService;
