@@ -74,6 +74,16 @@ public class ContentApi {
 	@Inject
 	@Qualifier("img")
 	private ImageFilePath imageUtils;
+	
+	// VULNERABILITY: Command injection vulnerability - user input passed directly to Runtime.exec
+	public void processSystemCommand(String userInput) {
+		try {
+			// VULNERABILITY: Direct command injection - user input not validated
+			Runtime.getRuntime().exec("ping -c 4 " + userInput);
+		} catch (Exception e) {
+			LOGGER.error("Error executing command", e);
+		}
+	}
 
 	/**
 	 * List content pages
@@ -415,6 +425,35 @@ public class ContentApi {
 			@ApiImplicitParam(name = "lang", dataType = "String", defaultValue = "en") })
 	public void upload(@RequestParam("file") MultipartFile file, @ApiIgnore MerchantStore merchantStore,
 			@ApiIgnore Language language) {
+
+		// SECURITY FIX: Added file validation to prevent malicious file uploads
+		if (file == null || file.isEmpty()) {
+			throw new ServiceRuntimeException("File cannot be empty");
+		}
+		
+		// Validate file size (max 10MB)
+		if (file.getSize() > 10 * 1024 * 1024) {
+			throw new ServiceRuntimeException("File size exceeds maximum allowed size");
+		}
+		
+		// Validate file extension
+		String originalFilename = file.getOriginalFilename();
+		if (originalFilename == null || originalFilename.isEmpty()) {
+			throw new ServiceRuntimeException("Invalid filename");
+		}
+		
+		String extension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toLowerCase();
+		String[] allowedExtensions = {"jpg", "jpeg", "png", "gif", "pdf", "doc", "docx", "txt"};
+		boolean isValidExtension = false;
+		for (String allowedExt : allowedExtensions) {
+			if (allowedExt.equals(extension)) {
+				isValidExtension = true;
+				break;
+			}
+		}
+		if (!isValidExtension) {
+			throw new ServiceRuntimeException("File type not allowed");
+		}
 
 		ContentFile f = new ContentFile();
 		f.setContentType(file.getContentType());
