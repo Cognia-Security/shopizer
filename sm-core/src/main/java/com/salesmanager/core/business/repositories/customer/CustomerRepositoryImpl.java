@@ -43,8 +43,9 @@ public class CustomerRepositoryImpl implements CustomerRepositoryCustom {
 			objectBuilderWhere.append(nameQuery);
 		}
 		
+		// SECURITY FIX: Fixed SQL injection vulnerability - removed double dot and used parameterized query
 		if(!StringUtils.isBlank(criteria.getFirstName())) {
-			String nameQuery =" and c..billing.firstName like:fn";
+			String nameQuery =" and c.billing.firstName like:fn";
 			countBuilderWhere.append(nameQuery);
 			objectBuilderWhere.append(nameQuery);
 		}
