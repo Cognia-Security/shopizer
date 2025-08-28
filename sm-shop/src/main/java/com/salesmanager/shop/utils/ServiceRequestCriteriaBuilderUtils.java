@@ -45,16 +45,39 @@ public class ServiceRequestCriteriaBuilderUtils {
 		
 	}
 	
+	// SECURITY FIX: Added input validation to prevent arbitrary property access
 	private static void setValue(Criteria criteria, HttpServletRequest request, String parameterName, String setterValue) throws Exception {
 		
 		
 		try {
+			
+			// SECURITY FIX: Validate setter name to prevent arbitrary property access
+			if (setterValue == null || setterValue.trim().isEmpty()) {
+				throw new Exception("Invalid setter name");
+			}
+			
+			// Only allow specific property names to prevent arbitrary property access
+			String[] allowedProperties = {"name", "firstName", "lastName", "email", "search", "orderBy", "maxCount", "startIndex"};
+			boolean isAllowedProperty = false;
+			for (String allowedProp : allowedProperties) {
+				if (allowedProp.equals(setterValue)) {
+					isAllowedProperty = true;
+					break;
+				}
+			}
+			if (!isAllowedProperty) {
+				throw new Exception("Property access not allowed: " + setterValue);
+			}
 			
 			PropertyAccessor criteriaAccessor = PropertyAccessorFactory.forDirectFieldAccess(criteria);
 			
 			
 			String parameterValue = request.getParameter(parameterName);
 			if(parameterValue == null) return;
+			
+			// SECURITY FIX: Sanitize input to prevent injection attacks
+			parameterValue = sanitizeInput(parameterValue);
+			
 			// set the property directly, bypassing the mutator (if any)
 			//String setterName = "set" + WordUtils.capitalize(setterValue);
 			String setterName = setterValue;
@@ -66,6 +89,13 @@ public class ServiceRequestCriteriaBuilderUtils {
 		}
 		
 		
+	}
+	
+	// SECURITY FIX: Added input sanitization method
+	private static String sanitizeInput(String input) {
+		if (input == null) return null;
+		// Remove potentially dangerous characters
+		return input.replaceAll("[<>\"'&;]", "");
 	}
 		   
   /** deprecated **/
