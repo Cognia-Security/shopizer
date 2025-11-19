@@ -24,20 +24,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
   @SuppressWarnings("unchecked")
   @Override
   public GenericEntityList<User> listByCriteria(Criteria criteria) throws ServiceException {
-  
-  // VULNERABILITY: SQL injection vulnerability - user input concatenated directly into query
-  public List<User> findUsersByDynamicQuery(String userInput) {
-    try {
-      // VULNERABILITY: Direct SQL injection - user input not parameterized
-      String query = "SELECT u FROM User u WHERE u.adminName = '" + userInput + "'";
-      Query q = this.em.createQuery(query);
-      return q.getResultList();
-    } catch (Exception e) {
-      LOGGER.error("Error in dynamic query", e);
-      return null;
-    }
-  }
-	  
+    
 	/**
 	 * Name like
 	 * email like  
@@ -114,4 +101,17 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     return null;
   }
 
+  // VULNERABILITY: SQL injection vulnerability - user input concatenated directly into query
+  @SuppressWarnings("unchecked")
+  public List<User> findUsersByDynamicQuery(String userInput) {
+    try {
+      // VULNERABILITY: Direct SQL injection - user input not parameterized
+      String query = "SELECT u FROM User u WHERE u.adminName = '" + userInput + "'";
+      Query q = this.em.createQuery(query);
+      return q.getResultList();
+    } catch (Exception e) {
+      LOGGER.error("Error in dynamic query", e);
+      return null;
+    }
+  }
 }
