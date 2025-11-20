@@ -4,6 +4,7 @@ on:
         branches:
             - main
             - new-vulnerabilities
+            - new-vulnerabilities-copy
     pull_request:
         types: [opened, synchronize, reopened]
 jobs:
