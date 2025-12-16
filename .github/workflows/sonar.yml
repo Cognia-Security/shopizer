@@ -50,7 +50,7 @@ jobs:
           org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
           -Dsonar.projectKey=Cognia-Security_shopizer \
           -Dsonar.branch.name=${{ github.ref_name }} \
-          -Dsonar.branch.target=new-vulnerabilities
+          -Dsonar.branch.target=branch-copy-main
 
       # -------- PR Analysis --------
       - name: Build and analyze (PR)
